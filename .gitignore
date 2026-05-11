@@ -1,15 +1,22 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+# Python
+__pycache__/
+*.py[cod]
+*.class
+venv/
+.env
+
+# Node
+node_modules/
+dist/
+build/
+.next/
+
+# DB/Redis
+data/
+
+# Logs
+logs/*.log
+
+# Misc
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
+*.swp
