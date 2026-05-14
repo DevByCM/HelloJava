@@ -14,3 +14,7 @@ scikit-learn
 requests
 python-dotenv
 stripe
+python-socketio
+aioredis
+slowapi
+structlog

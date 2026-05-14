@@ -1,24 +1,27 @@
-# Architecture Document: AI Football Betting Intelligence
+# Enterprise AI Football Betting Intelligence Platform
 
-## 1. System Overview
-The platform is designed as a distributed SaaS ecosystem composed of a FastAPI backend, a React frontend, and a Celery-based background worker system for data ingestion and ML processing.
+## Architecture Overview
+The platform uses a **Modular Monolith** architecture following **Clean Architecture** principles, designed for high scalability and real-time responsiveness.
 
-## 2. Components
-- **Backend (FastAPI)**: REST API handling auth, user management, match data, and bet ticket retrieval.
-- **Frontend (React)**: Modern dashboard with role-based view locking.
-- **Worker (Celery)**: Background task processor for ETL and Prediction pipelines.
-- **Database (PostgreSQL)**: Relational storage for users, matches, and predictions.
-- **Cache (Redis)**: Task queue broker and caching layer.
+## Core Stack
+- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS, Framer Motion, Socket.IO.
+- **Backend**: FastAPI, Socket.IO, SQLAlchemy (PostgreSQL), Redis Pub/Sub.
+- **Task Processing**: Celery + Redis for background ETL and AI workloads.
+- **AI Engine**: Hybrid explainability using SHAP values and Poisson-based probability modeling.
 
-## 3. Data Flow
-1. **Ingestion**: Celery Beat triggers `sync_and_predict` hourly.
-2. **ETL**: Fetches data from Football-Data.org, normalizes and stores in DB.
-3. **ML Engine**: Baseline Poisson model generates probabilities and confidence scores.
-4. **Ticket Generator**: Combines high-confidence picks into optimized slips (~2.0 odds).
-5. **UI**: React dashboard consumes API, applying JWT-based access control.
+## Domain Modules
+- `auth`: JWT-based secure authentication.
+- `users`: User management and Role-Based Access Control (RBAC).
+- `matches`: Global football data management.
+- `predictions`: AI-generated match insights.
+- `ai_engine`: Model explainability and retraining services.
+- `bet_ticket`: Automated ticket generation logic.
 
-## 4. Security
-- JWT for authentication.
-- Password hashing via bcrypt.
-- Role-Based Access Control (RBAC) enforced at the API level.
-- Dockerized environment with Nginx reverse proxy.
+## Real-time System
+Uses Socket.IO with a Redis manager to broadcast live match updates, odds shifts, and AI recalibrations across distributed backend instances.
+
+## Security & Operations
+- **Rate Limiting**: Integrated via SlowAPI.
+- **Logging**: Structured JSON logging via Structlog.
+- **Deployment**: Full Docker Compose orchestration with automated health checks.
+- **Database**: Versioned migrations via Alembic.
