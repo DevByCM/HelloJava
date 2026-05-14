@@ -9,8 +9,11 @@ services:
       - POSTGRES_DB=betting_db
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
-    ports:
-      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -27,10 +30,12 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=betting_db
       - REDIS_URL=redis://redis:6379/0
-      - SECRET_KEY=REPLACE_ME_WITH_REAL_SECRET
+      - SECRET_KEY=REPLACE_ME_PRODUCTION_SECRET
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     ports:
       - "8000:8000"
 
@@ -46,21 +51,14 @@ services:
       - redis
       - db
 
-  beat:
-    build:
-      context: .
-      dockerfile: infrastructure/docker/Dockerfile.backend
-    command: celery -A app.worker.beat beat --loglevel=info
-    environment:
-      - REDIS_URL=redis://redis:6379/0
-    depends_on:
-      - redis
-
   frontend:
     build:
       context: .
       dockerfile: infrastructure/docker/Dockerfile.frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+      - NEXT_PUBLIC_WS_URL=http://localhost:8000
     ports:
-      - "80:80"
+      - "3000:80"
     depends_on:
       - backend
